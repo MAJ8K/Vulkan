@@ -8,7 +8,7 @@
                 "-std=c++17","-O2",
                 "-fdiagnostics-color=always",
                 "-g",
-                "HelloTriangle.cpp",
+                "main.cpp",
                 "-o",
                 "main",
                 "-lglfw",

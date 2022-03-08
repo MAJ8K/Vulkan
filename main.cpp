@@ -2,8 +2,19 @@
 #include "Interface.hpp"
 
 int main() {
-	Interface interface;
-	interface.display(1200,600);
-	interface.play();
-	return 0;
+	//Interface configuration
+	Interface interface(800,600);
+
+	//Interface update
+	try
+	{
+		interface.run();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+	return EXIT_SUCCESS;
 }
