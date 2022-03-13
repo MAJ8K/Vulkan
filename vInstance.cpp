@@ -1,3 +1,4 @@
+#pragma once
 #include "Interface.hpp"
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -26,6 +27,8 @@ void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create
 		VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 		VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT ;
 	createinfo.pfnUserCallback = debugCallback;
+	createinfo.flags = 0;
+	createinfo.pNext = nullptr;
 	createinfo.pUserData = nullptr; //optional
 }
 
