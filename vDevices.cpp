@@ -109,24 +109,24 @@ void Interface::createLogicalDevice(){
 
 	float queuePriority = 1.0f;
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
-		VkDeviceQueueCreateInfo queueCreateInfo{};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamily;
-		queueCreateInfo.queueCount = 1;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		VkDeviceQueueCreateInfo queueCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			.queueFamilyIndex = queueFamily,
+			.queueCount = 1,
+			.pQueuePriorities = &queuePriority,
+		};
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
-	VkDeviceCreateInfo createinfo{};
-	createinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createinfo.pQueueCreateInfos = queueCreateInfos.data();
-	createinfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-
-	createinfo.pEnabledFeatures = &deviceFeatures;
-
-	createinfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-	createinfo.ppEnabledExtensionNames = deviceExtensions.data();
+	VkDeviceCreateInfo createinfo{
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+		.pQueueCreateInfos = queueCreateInfos.data(),
+		.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+		.ppEnabledExtensionNames = deviceExtensions.data(),
+		.pEnabledFeatures = &deviceFeatures,
+	};
 	if (enableValidationLayers) {
 		createinfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createinfo.ppEnabledLayerNames = validationLayers.data();

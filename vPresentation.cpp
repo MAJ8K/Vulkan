@@ -56,16 +56,17 @@ void Interface::createSwapChain(){
 		imageCount = swapChainSupport.capabilities.maxImageCount;
 	}
 
-	VkSwapchainCreateInfoKHR createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = surface;
+	VkSwapchainCreateInfoKHR createInfo{
+		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		.surface = surface,
 
-	createInfo.minImageCount = imageCount;
-	createInfo.imageFormat = surfaceFormat.format;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		.minImageCount = imageCount,
+		.imageFormat = surfaceFormat.format,
+		.imageColorSpace = surfaceFormat.colorSpace,
+		.imageExtent = extent,
+		.imageArrayLayers = 1,
+		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+	};
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
 
@@ -98,20 +99,25 @@ void Interface::createSwapChain(){
 void Interface::createImageViews(){
 	swapChainImageViews.resize(swapChainImages.size());
 	for (size_t i = 0; i < swapChainImages.size(); i++){
-		VkImageViewCreateInfo createinfo{};
-		createinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createinfo.image = swapChainImages[i];
-		createinfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createinfo.format = swapChainImageFormat;
-		createinfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createinfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createinfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createinfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createinfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createinfo.subresourceRange.baseMipLevel = 0;
-		createinfo.subresourceRange.levelCount = 1;
-		createinfo.subresourceRange.baseArrayLayer = 0;
-		createinfo.subresourceRange.layerCount = 1;
+		VkImageViewCreateInfo createinfo{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			.image = swapChainImages[i],
+			.viewType = VK_IMAGE_VIEW_TYPE_2D,
+			.format = swapChainImageFormat,
+			.components{
+				.r = VK_COMPONENT_SWIZZLE_IDENTITY,
+				.g = VK_COMPONENT_SWIZZLE_IDENTITY,
+				.b = VK_COMPONENT_SWIZZLE_IDENTITY,
+				.a = VK_COMPONENT_SWIZZLE_IDENTITY,
+			},
+			.subresourceRange{
+				.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+				.baseMipLevel = 0,
+				.levelCount = 1,
+				.baseArrayLayer = 0,
+				.layerCount = 1,
+			},
+		};
 		if (vkCreateImageView(device, &createinfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
 			throw std::runtime_error("failed to create image views!");
 	}
