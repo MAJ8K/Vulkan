@@ -117,3 +117,15 @@ void Interface::createImageViews(){
 	}
 	
 }
+
+void Interface::recreateSwapChain(){
+	vkDeviceWaitIdle(device);
+
+	cleanupSwapChain();
+
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createGraphicsPipeline();
+	createFramebuffers();
+}
