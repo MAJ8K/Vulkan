@@ -118,7 +118,14 @@ void Interface::createImageViews(){
 	
 }
 
-void Interface::recreateSwapChain(){
+void Interface::recreateSwapChain() {
+	int width = 0, height = 0;
+	glfwGetFramebufferSize((GLFWwindow*)window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize((GLFWwindow*)window, &width, &height);
+		glfwWaitEvents();
+	}
+
 	vkDeviceWaitIdle(device);
 
 	cleanupSwapChain();

@@ -107,7 +107,6 @@ private:
 	std::vector<VkFence> inFlightFences;
 	uint32_t currentFrame = 0;
 
-
 private: 
 	void initWindow();
 	void initVulkan();
@@ -139,7 +138,7 @@ private:
 	void drawFrame();
 	void createSyncObjects();
 
-	static void framebufferResizeCallback(GLFWwindow* window,int width,int height){
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<Interface*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
@@ -154,10 +153,10 @@ Interface::Interface(uint32_t width, uint32_t height):
 void Interface::initWindow(){
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	window = glfwCreateWindow(WIDTH,HEIGHT,"Vulkan Yatta",nullptr,nullptr);
-	// glfwSetFramebufferSizeCallback((GLFWwindow*)window,framebufferResizeCallback);
+	glfwSetWindowUserPointer((GLFWwindow*)window,this);
+	glfwSetFramebufferSizeCallback((GLFWwindow*)window,framebufferResizeCallback);
 }
 void Interface::initVulkan(){
 	createInstance();
