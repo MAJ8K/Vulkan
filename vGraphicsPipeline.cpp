@@ -106,12 +106,14 @@ void Interface::createGraphicsPipeline(){
 		vertShaderStageInfo, fragShaderStageInfo
 	};
 
+	auto bindingDescription = Vertex::getBindingDescription();
+	auto attributeDescriptions = Vertex::getAttributeDescriptions();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		.vertexBindingDescriptionCount = 0,
-		.pVertexBindingDescriptions = nullptr, //Optional
-		.vertexAttributeDescriptionCount = 0,
-		.pVertexAttributeDescriptions = nullptr, //Optional
+		.vertexBindingDescriptionCount = 1,
+		.pVertexBindingDescriptions = &bindingDescription, //Optional
+		.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
+		.pVertexAttributeDescriptions = attributeDescriptions.data(), //Optional
 	};
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{

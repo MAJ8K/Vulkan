@@ -4,6 +4,7 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -107,6 +108,11 @@ private:
 	std::vector<VkFence> inFlightFences;
 	uint32_t currentFrame = 0;
 
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
 private: 
 	void initWindow();
 	void initVulkan();
@@ -130,6 +136,8 @@ private:
 	void createRenderPass();
 
 	void createFramebuffers();
+	void createVertexBuffer();
+	void createIndexBuffer();
 
 	void recordCommandBuffer(VkCommandBuffer, uint32_t);
 	void createCommandPool();
@@ -170,6 +178,8 @@ void Interface::initVulkan(){
 	createGraphicsPipeline();
 	createFramebuffers();
 	createCommandPool();
+	createVertexBuffer();
+	createIndexBuffer();
 	createCommandBuffers();
 	createSyncObjects();
 }
@@ -198,6 +208,11 @@ void Interface::cleanupSwapChain() {
 }
 void Interface::cleanup(){
 	cleanupSwapChain();
+
+	vkDestroyBuffer(device,indexBuffer,nullptr);
+	vkFreeMemory(device, indexBufferMemory, nullptr);
+	vkDestroyBuffer(device,vertexBuffer,nullptr);
+	vkFreeMemory(device, vertexBufferMemory, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -228,6 +243,7 @@ void Interface::run(){
 
 }
 
+#include "vBuffers.cpp"
 #include "vInstance.cpp"
 #include "vDevices.cpp"
 #include "vPresentation.cpp"
