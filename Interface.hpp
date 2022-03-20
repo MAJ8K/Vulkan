@@ -4,9 +4,11 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -17,6 +19,7 @@
 #include <set>
 #include <algorithm>
 #include <limits>
+#include <chrono>
 
 struct QueueFamilyIndices {
 	uint32_t flags;
@@ -94,8 +97,9 @@ private:
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
 
-	VkPipelineLayout pipelineLayout;
 	VkRenderPass renderPass;
+	VkDescriptorSetLayout descriptorSetLayout;
+	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -112,6 +116,12 @@ private:
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 
 private: 
 	void initWindow();
@@ -138,6 +148,11 @@ private:
 	void createFramebuffers();
 	void createVertexBuffer();
 	void createIndexBuffer();
+	void createUniformBuffers();
+	void updateUniformBuffer(uint32_t);
+	void createDescriptorSetLayout();
+	void createDescriptorPool();
+	void createDescriptorSets();
 
 	void recordCommandBuffer(VkCommandBuffer, uint32_t);
 	void createCommandPool();
@@ -175,11 +190,15 @@ void Interface::initVulkan(){
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
+	createDescriptorSetLayout();
 	createGraphicsPipeline();
 	createFramebuffers();
 	createCommandPool();
 	createVertexBuffer();
 	createIndexBuffer();
+	createUniformBuffers();
+	createDescriptorPool();
+	createDescriptorSets();
 	createCommandBuffers();
 	createSyncObjects();
 }
@@ -204,14 +223,21 @@ void Interface::cleanupSwapChain() {
 		vkDestroyImageView(device, imageView, nullptr);
 	}
 
-		vkDestroySwapchainKHR(device, swapChain, nullptr);
+	vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
-void Interface::cleanup(){
+void Interface::cleanup() {
 	cleanupSwapChain();
 
-	vkDestroyBuffer(device,indexBuffer,nullptr);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+		vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+	}
+	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+	vkDestroyBuffer(device, indexBuffer, nullptr);
 	vkFreeMemory(device, indexBufferMemory, nullptr);
-	vkDestroyBuffer(device,vertexBuffer,nullptr);
+	vkDestroyBuffer(device, vertexBuffer, nullptr);
 	vkFreeMemory(device, vertexBufferMemory, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -219,15 +245,16 @@ void Interface::cleanup(){
 		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(device, inFlightFences[i], nullptr);
 	}
+
 	vkDestroyCommandPool(device, commandPool, nullptr);
-	
+
 	vkDestroyDevice(device, nullptr);
 	vkDestroySurfaceKHR(instance, surface, nullptr);
-	
+
 	if (enableValidationLayers) {
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 	}
-	vkDestroyInstance(instance,nullptr);
+	vkDestroyInstance(instance, nullptr);
 }
 
 void Interface::run(){

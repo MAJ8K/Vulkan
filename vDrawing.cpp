@@ -57,6 +57,7 @@ void Interface::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(commandBuffer,0,1,vertexBuffers,offsets);
 	vkCmdBindIndexBuffer(commandBuffer,indexBuffer,0,VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 	vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(indices.size()),1,0,0,0);
 
@@ -121,6 +122,10 @@ void Interface::createSyncObjects() {
 	}
 }
 
+///////////////////////////////////////////////////////
+//-----------------------Run Time--------------------//
+///////////////////////////////////////////////////////
+
 void Interface::drawFrame() {
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -133,6 +138,8 @@ void Interface::drawFrame() {
 	} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+
+	updateUniformBuffer(currentFrame);
 
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 

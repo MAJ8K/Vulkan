@@ -146,7 +146,7 @@ void Interface::createGraphicsPipeline(){
 		.rasterizerDiscardEnable = VK_FALSE,
 		.polygonMode = VK_POLYGON_MODE_FILL,//FILL, LINE, POINT 
 		.cullMode = VK_CULL_MODE_BACK_BIT,
-		.frontFace = VK_FRONT_FACE_CLOCKWISE,
+		.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 		.depthBiasEnable = VK_FALSE,
 		.depthBiasConstantFactor = 0.0f, //Optional
 		.depthBiasClamp = 0.0f, //Optional
@@ -189,8 +189,8 @@ void Interface::createGraphicsPipeline(){
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		.setLayoutCount = 0, //Optional
-		.pSetLayouts = nullptr, //Optional
+		.setLayoutCount = 1, //Optional
+		.pSetLayouts = &descriptorSetLayout, //Optional
 		.pushConstantRangeCount = 0, //Optional
 		.pPushConstantRanges = nullptr, //Optional
 	};
