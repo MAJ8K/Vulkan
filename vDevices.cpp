@@ -76,10 +76,15 @@ bool isDeviceSuitable(VkPhysicalDevice pDevice, VkSurfaceKHR surface){
 			!swapChainsupport.formats.empty() 
 			&& !swapChainsupport.presentModes.empty();
 	}
+
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(pDevice, &supportedFeatures);
+
 	return 
 		indices.isComplete() 
 		&& extensionsSupported
-		&& swapChainAdequate;
+		&& swapChainAdequate
+		&& supportedFeatures.samplerAnisotropy;
 }
 
 void Interface::pickPhysicalDevice(){
@@ -101,7 +106,6 @@ void Interface::pickPhysicalDevice(){
 }
 
 void Interface::createLogicalDevice(){
-
 	QueueFamilyIndices indices = findQueueFamilies(physicalDevice,surface);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -118,7 +122,9 @@ void Interface::createLogicalDevice(){
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
-	VkPhysicalDeviceFeatures deviceFeatures{};
+	VkPhysicalDeviceFeatures deviceFeatures{
+		.samplerAnisotropy = VK_TRUE,
+	};
 	VkDeviceCreateInfo createinfo{
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 		.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),

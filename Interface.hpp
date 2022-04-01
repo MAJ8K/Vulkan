@@ -10,12 +10,16 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "res/stb_image.h"
+
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
 
 #include <vector>
 #include <cstring>
+#include <array>
 #include <set>
 #include <algorithm>
 #include <limits>
@@ -117,6 +121,11 @@ private:
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 
+	VkImage textureImage;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
+	VkDeviceMemory textureImageMemory;
+
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
@@ -153,6 +162,9 @@ private:
 	void createDescriptorSetLayout();
 	void createDescriptorPool();
 	void createDescriptorSets();
+	void createTextureImage();
+	void createTextureImageView();
+	void createTextureSampler();
 
 	void recordCommandBuffer(VkCommandBuffer, uint32_t);
 	void createCommandPool();
@@ -164,6 +176,9 @@ private:
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<Interface*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
+	}
+	static void VK_SUCCESSFUL(VkResult result,const char* err){
+		if (result != VK_SUCCESS) throw std::runtime_error(err);
 	}
 };
 
@@ -194,6 +209,9 @@ void Interface::initVulkan(){
 	createGraphicsPipeline();
 	createFramebuffers();
 	createCommandPool();
+	createTextureImage();
+	createTextureImageView();
+	createTextureSampler();
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();
@@ -227,6 +245,12 @@ void Interface::cleanupSwapChain() {
 }
 void Interface::cleanup() {
 	cleanupSwapChain();
+
+	vkDestroySampler(device, textureSampler, nullptr);
+	vkDestroyImageView(device, textureImageView, nullptr);
+
+	vkDestroyImage(device,textureImage,nullptr);
+	vkFreeMemory(device, textureImageMemory, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroyBuffer(device, uniformBuffers[i], nullptr);
